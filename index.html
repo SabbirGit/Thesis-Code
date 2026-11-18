@@ -1,212 +1,99 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#102b3f">
-  <meta name="description" content="A research project comparing explainable models for Clinical Decision Support Systems, with a focus on making model reasoning more useful in clinical practice.">
-  <title>Thesis — Explainable Clinical Decision Support</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --ink: #173247;
-      --muted: #607786;
-      --navy: #102b3f;
-      --teal: #167c80;
-      --mint: #dff2eb;
-      --paper: #f7f8f4;
-      --white: #fff;
-      --coral: #d66b55;
-      --line: #dce5e2;
-      --shadow: 0 24px 70px rgba(16, 43, 63, .12);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { margin: 0; background: var(--paper); color: var(--ink); line-height: 1.65; }
-    a { color: inherit; }
-    .wrap { width: min(1120px, calc(100% - 44px)); margin-inline: auto; }
-    .topbar { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; color: #e8f4f1; }
-    .nav { background: var(--navy); }
-    .brand { display: flex; align-items: center; gap: 12px; font-size: .9rem; font-weight: 750; letter-spacing: .04em; }
-    .brand-mark { display: grid; width: 36px; height: 36px; place-items: center; border: 1px solid rgba(255,255,255,.25); border-radius: 12px; color: #a9e3d3; }
-    .navlinks { display: flex; gap: 26px; font-size: .88rem; }
-    .navlinks a { text-decoration: none; color: #d2e3e3; }
-    .navlinks a:hover { color: white; }
-    .hero { position: relative; overflow: hidden; background: var(--navy); color: white; padding: 70px 0 95px; }
-    .hero:before { content: ""; position: absolute; width: 530px; height: 530px; right: -85px; top: -240px; border: 1px solid rgba(135, 205, 190, .19); border-radius: 50%; box-shadow: 0 0 0 48px rgba(135,205,190,.035), 0 0 0 100px rgba(135,205,190,.025); }
-    .hero-grid { position: relative; display: grid; grid-template-columns: 1.1fr .9fr; gap: 55px; align-items: center; }
-    .eyebrow { color: #a9e3d3; font-size: .76rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
-    h1 { max-width: 760px; margin: 18px 0 22px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2.6rem, 5.7vw, 4.7rem); font-weight: 500; letter-spacing: -.045em; line-height: 1.04; }
-    .hero p { max-width: 590px; margin: 0; color: #cfdddf; font-size: 1.08rem; }
-    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
-    .button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; padding: 0 19px; border-radius: 8px; background: #a9e3d3; color: #102b3f; font-size: .9rem; font-weight: 800; text-decoration: none; transition: transform .2s, background .2s; }
-    .button:hover { transform: translateY(-2px); background: #c1efdf; }
-    .button.outline { border: 1px solid rgba(255,255,255,.35); background: transparent; color: white; }
-    .button.outline:hover { background: rgba(255,255,255,.08); }
-    .visual { position: relative; min-height: 325px; display: grid; place-items: center; }
-    .orbit { position: absolute; width: 290px; height: 290px; border: 1px solid rgba(173,222,210,.32); border-radius: 50%; }
-    .orbit:before,.orbit:after { content: ""; position: absolute; border: 1px solid rgba(173,222,210,.22); border-radius: 50%; inset: 28px; }
-    .orbit:after { inset: 62px; }
-    .core { z-index: 1; display: grid; place-items: center; width: 138px; height: 138px; border: 1px solid rgba(255,255,255,.28); border-radius: 50%; background: linear-gradient(145deg, #1d6971, #143b52); box-shadow: 0 15px 50px #061c2a; color: #c9f0e2; text-align: center; font-size: .82rem; font-weight: 800; line-height: 1.4; }
-    .node { position: absolute; z-index: 2; display: grid; place-items: center; width: 88px; height: 88px; border: 1px solid rgba(255,255,255,.45); border-radius: 18px; background: #183a50; color: #f2fbf8; text-align: center; font-size: .7rem; font-weight: 750; line-height: 1.25; box-shadow: 0 12px 30px rgba(0,0,0,.2); }
-    .node.one { top: 4px; left: 50%; transform: translateX(-50%); }
-    .node.two { right: 0; top: 120px; }
-    .node.three { bottom: 4px; left: 50%; transform: translateX(-50%); }
-    .node.four { left: 0; top: 120px; }
-    .node span { color: #a9e3d3; font-size: 1.25rem; }
-    .ticker { position: relative; z-index: 3; margin-top: -28px; }
-    .ticker-inner { display: grid; grid-template-columns: repeat(3, 1fr); overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--white); box-shadow: var(--shadow); }
-    .ticker-item { padding: 22px 26px; }
-    .ticker-item + .ticker-item { border-left: 1px solid var(--line); }
-    .ticker-item strong { display: block; color: var(--teal); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; }
-    .ticker-item span { display: block; margin-top: 5px; font-size: .95rem; font-weight: 700; }
-    section { padding: 88px 0; }
-    .section-label { color: var(--teal); font-size: .75rem; font-weight: 850; letter-spacing: .15em; text-transform: uppercase; }
-    h2 { margin: 9px 0 15px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(2rem, 3.8vw, 3.1rem); font-weight: 500; letter-spacing: -.035em; line-height: 1.12; }
-    .lead { max-width: 690px; color: var(--muted); font-size: 1.05rem; }
-    .intro-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 65px; align-items: center; }
-    .quote-card { padding: 30px; border-left: 4px solid var(--coral); border-radius: 0 12px 12px 0; background: #fff; box-shadow: 0 12px 40px rgba(16,43,63,.06); }
-    .quote-card p { margin: 0; color: var(--ink); font-family: Georgia, "Times New Roman", serif; font-size: 1.35rem; line-height: 1.45; }
-    .quote-card small { display: block; margin-top: 18px; color: var(--muted); }
-    .framework { background: #edf3ef; }
-    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 34px; }
-    .card { min-height: 220px; padding: 23px; border: 1px solid #dce7e1; border-radius: 12px; background: rgba(255,255,255,.78); }
-    .card-num { color: var(--coral); font-family: Georgia, serif; font-size: 1.7rem; }
-    .card h3 { margin: 13px 0 8px; font-size: 1rem; }
-    .card p { margin: 0; color: var(--muted); font-size: .91rem; }
-    .workflow { display: grid; grid-template-columns: .8fr 1.2fr; gap: 70px; align-items: start; }
-    .steps { display: grid; gap: 0; }
-    .step { display: grid; grid-template-columns: 45px 1fr; gap: 18px; padding: 17px 0; border-bottom: 1px solid var(--line); }
-    .step:last-child { border-bottom: 0; }
-    .step-number { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 50%; background: var(--mint); color: var(--teal); font-weight: 850; }
-    .step h3 { margin: 2px 0 4px; font-size: 1rem; }
-    .step p { margin: 0; color: var(--muted); font-size: .92rem; }
-    .code-section { padding: 70px 0; background: var(--navy); color: white; }
-    .code-section .section-label { color: #a9e3d3; }
-    .code-section .lead { color: #c7d7da; }
-    .notebooks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 30px; }
-    .notebook { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 22px; border: 1px solid rgba(255,255,255,.18); border-radius: 10px; background: rgba(255,255,255,.055); text-decoration: none; }
-    .notebook:hover { border-color: #a9e3d3; background: rgba(255,255,255,.1); }
-    .notebook b { display: block; font-size: .95rem; }
-    .notebook small { color: #b6c8cb; }
-    .arrow { color: #a9e3d3; font-size: 1.4rem; }
-    footer { padding: 24px 0; color: var(--muted); font-size: .82rem; }
-    .footer-inner { display: flex; justify-content: space-between; gap: 15px; flex-wrap: wrap; }
-    @media (max-width: 800px) {
-      .hero-grid,.intro-grid,.workflow { grid-template-columns: 1fr; gap: 35px; }
-      .hero { padding: 55px 0 70px; }
-      .visual { min-height: 310px; }
-      .cards { grid-template-columns: repeat(2, 1fr); }
-      .intro-grid { align-items: start; }
-    }
-    @media (max-width: 560px) {
-      .wrap { width: min(100% - 30px, 1120px); }
-      .navlinks { gap: 13px; font-size: .78rem; }
-      .navlinks a:nth-child(2) { display: none; }
-      .topbar { padding: 15px 0; }
-      .ticker-inner { grid-template-columns: 1fr; }
-      .ticker-item { padding: 15px 20px; }
-      .ticker-item + .ticker-item { border-left: 0; border-top: 1px solid var(--line); }
-      section { padding: 64px 0; }
-      .cards,.notebooks { grid-template-columns: 1fr; }
-      .card { min-height: auto; }
-      .visual { transform: scale(.88); margin: -15px 0; }
-    }
-    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *:before, *:after { transition-duration: .01ms !important; } }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f8f6ef">
+<meta name="description" content="Thesis research on explainable models for clinical decision support, with MIMIC-IV analysis notebooks.">
+<title>Explainable Clinical Decision Support | Thesis</title>
+<style>
+:root { color-scheme: light; --paper: #f8f6ef; --ink: #20251e; --green: #294a35; --muted: #4d594e; --line: #c9d1c1; --lime: #e0ecba; font-family: system-ui, sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); line-height: 1.6; }
+a { color: inherit; text-underline-offset: .24em; }
+a:focus-visible { outline: 3px solid #799340; outline-offset: 4px; }
+.wrap { width: min(1120px, calc(100% - 48px)); margin-inline: auto; }
+header, footer { border-block-end: 1px solid var(--line); }
+header .wrap, footer .wrap, nav { display: flex; gap: 1rem 1.5rem; flex-wrap: wrap; align-items: center; }
+header .wrap, footer .wrap { justify-content: space-between; padding-block: 1rem; }
+nav, .label, footer { font-size: .85rem; }
+.brand { font-weight: 750; text-decoration: none; }
+.hero { padding-block: clamp(3rem, 9vw, 8rem); }
+.hero-grid { display: grid; grid-template-columns: 1.4fr 1fr; align-items: center; gap: clamp(2rem, 6vw, 6rem); }
+h1, h2 { font-family: Georgia, serif; font-weight: 400; line-height: 1; letter-spacing: -.045em; margin: 0 0 .55em; }
+h1 { font-size: clamp(3rem, 7vw, 6.5rem); }
+h2 { font-size: clamp(2.35rem, 5vw, 4rem); }
+h3 { margin: 0; font-size: 1rem; }
+p { margin: 0; }
+.description { color: var(--muted); max-width: 52ch; font-size: 1.1rem; }
+.label { text-transform: uppercase; letter-spacing: .13em; font-weight: 700; margin-bottom: 1rem; }
+.button { display: inline-block; padding: .8rem 1.2rem; margin-top: 1.7rem; background: var(--green); color: white; font-weight: 650; text-decoration: none; }
+.button:hover { background: #3a6145; }
+.workflow { padding: clamp(1.25rem, 4vw, 2.75rem); margin: 0; background: radial-gradient(ellipse at 100% 0%, #4b6240, #203c2b 75%); color: #fff; }
+.workflow ol { margin: 0; padding-left: 1.6rem; }
+.workflow li { padding: .8rem .2rem; border-top: 1px solid #84977b; }
+.workflow li::marker { color: #d7e8ae; font-weight: 700; }
+.section { border-top: 1px solid var(--line); padding-block: clamp(2.75rem, 7vw, 5.5rem); }
+.questions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 2rem; margin-top: 1.5rem; }
+.questions article { padding-block: 1rem; border-top: 1px solid var(--line); }
+.questions p { color: var(--muted); }
+.notebooks { background: var(--lime); }
+.notebook-list { list-style: none; padding: 0; margin: 1.5rem 0; }
+.notebook-list a { display: flex; gap: 1rem; justify-content: space-between; align-items: center; border-top: 1px solid #93a279; padding: 1rem 0; font-weight: 650; }
+.notebook-list li:last-child a { border-bottom: 1px solid #93a279; }
+footer { border-block-start: 1px solid var(--line); border-block-end: 0; }
+@media (max-width: 730px) { .hero-grid, .questions { grid-template-columns: 1fr; } }
+</style>
 </head>
 <body>
-  <header class="nav">
-    <div class="wrap topbar">
-      <a class="brand" href="#top" aria-label="Thesis home"><span class="brand-mark" aria-hidden="true">＋</span><span>THESIS / CLINICAL AI</span></a>
-      <nav class="navlinks" aria-label="Main navigation">
-        <a href="#study">The study</a><a href="#framework">Framework</a><a href="#code">Code</a>
-      </nav>
+<header>
+  <div class="wrap">
+    <a class="brand" href="#top">Explainable clinical AI</a>
+    <nav aria-label="Main"><a href="#study">Study</a><a href="#notebooks">Notebooks</a><a href="https://github.com/SabbirGit/Thesis-Code">GitHub</a></nav>
+  </div>
+</header>
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="label">Thesis research · MIMIC-IV</p>
+        <h1>Explainable clinical decision support</h1>
+        <p class="description">A comparative analysis of explainable models for clinical decision support systems, with a focus on how predictive performance and model explanations can be evaluated together.</p>
+        <a class="button" href="#notebooks">Explore the research code</a>
+      </div>
+      <figure class="workflow">
+        <figcaption class="label">Research workflow</figcaption>
+        <ol>
+          <li>Prepare MIMIC-IV data</li>
+          <li>Build and evaluate models</li>
+          <li>Compare model explanations</li>
+          <li>Interpret findings in context</li>
+        </ol>
+      </figure>
     </div>
-  </header>
-  <main id="top">
-    <div class="hero">
-      <div class="wrap hero-grid">
-        <div>
-          <div class="eyebrow">Research · Explainable AI · Healthcare</div>
-          <h1>Comparative analysis of explainable models for Clinical Decision Support Systems</h1>
-          <p>Exploring how predictive performance and model explanations can work together to support more transparent, informed clinical decisions.</p>
-          <div class="actions">
-            <a class="button" href="#study">Explore the research <span aria-hidden="true">↓</span></a>
-            <a class="button outline" href="#code">View notebooks <span aria-hidden="true">↗</span></a>
-          </div>
-        </div>
-        <div class="visual" role="img" aria-label="Illustration of clinical decision support connecting patient data, predictive models, explanations, and care decisions">
-          <div class="orbit"></div>
-          <div class="core">CLINICAL<br>DECISION<br>SUPPORT</div>
-          <div class="node one"><span>▤</span><br>Patient data</div>
-          <div class="node two"><span>◉</span><br>Model</div>
-          <div class="node three"><span>✳</span><br>Explanation</div>
-          <div class="node four"><span>♡</span><br>Care decision</div>
-        </div>
+  </section>
+  <section class="section" id="study">
+    <div class="wrap">
+      <h2>What the study compares</h2>
+      <div class="questions">
+        <article><h3>Predictive performance</h3><p>How well does each model perform on its prediction task?</p></article>
+        <article><h3>Explanation quality</h3><p>What do the explanations reveal about model behavior?</p></article>
+        <article><h3>Clinical relevance</h3><p>How do explanations relate to information that matters in care?</p></article>
+        <article><h3>Practical trade-offs</h3><p>How do transparency, complexity, and usefulness interact?</p></article>
       </div>
     </div>
-    <div class="wrap ticker" aria-label="Research themes">
-      <div class="ticker-inner">
-        <div class="ticker-item"><strong>Focus</strong><span>Explainable clinical models</span></div>
-        <div class="ticker-item"><strong>Application</strong><span>Clinical decision support</span></div>
-        <div class="ticker-item"><strong>Data context</strong><span>MIMIC-IV notebooks</span></div>
-      </div>
+  </section>
+  <section class="section notebooks" id="notebooks">
+    <div class="wrap">
+      <h2>Research notebooks</h2>
+      <ul class="notebook-list">
+        <li><a href="https://github.com/SabbirGit/Thesis-Code/blob/main/Thesis%20notebook%20using%20MIMIC%20IV%20%2813%29%20%281%29.ipynb">Primary thesis notebook <span aria-hidden="true">↗</span></a></li>
+        <li><a href="https://github.com/SabbirGit/Thesis-Code/blob/main/Thesis%20notebook%20using%20MIMIC%20IV-Copy1%20%281%29.ipynb">Additional thesis notebook <span aria-hidden="true">↗</span></a></li>
+      </ul>
+      <p>Rerunning the analysis requires authorized access to <a href="https://physionet.org/content/mimiciv/">MIMIC-IV on PhysioNet</a>.</p>
     </div>
-    <section id="study">
-      <div class="wrap intro-grid">
-        <div>
-          <div class="section-label">The research</div>
-          <h2>Making model reasoning part of the conversation.</h2>
-          <p class="lead">Clinical decision support systems can surface useful predictions, but a recommendation is more meaningful when clinicians can also examine the reasoning behind it. This project focuses on comparing explainable approaches in that setting.</p>
-        </div>
-        <aside class="quote-card">
-          <p>“A useful clinical model should do more than predict. Its reasoning should be open to examination.”</p>
-          <small>Guiding principle of the project</small>
-        </aside>
-      </div>
-    </section>
-    <section class="framework" id="framework">
-      <div class="wrap">
-        <div class="section-label">A comparison framework</div>
-        <h2>Look beyond the prediction.</h2>
-        <p class="lead">The comparison is organized around complementary questions. These are evaluation dimensions—not reported results.</p>
-        <div class="cards">
-          <article class="card"><div class="card-num">01</div><h3>Predictive performance</h3><p>How well does each approach perform on its prediction task and evaluation data?</p></article>
-          <article class="card"><div class="card-num">02</div><h3>Explanation quality</h3><p>Are the explanations understandable, consistent, and informative about model behavior?</p></article>
-          <article class="card"><div class="card-num">03</div><h3>Clinical relevance</h3><p>Can the explanation connect model output to information that matters in a care context?</p></article>
-          <article class="card"><div class="card-num">04</div><h3>Practical trade-offs</h3><p>What balance do the approaches offer between transparency, complexity, and usefulness?</p></article>
-        </div>
-      </div>
-    </section>
-    <section>
-      <div class="wrap workflow">
-        <div>
-          <div class="section-label">From data to insight</div>
-          <h2>A careful path from evidence to interpretation.</h2>
-          <p class="lead">The repository includes Jupyter notebooks using the MIMIC-IV dataset. Explore the code to see the analytical workflow and its implementation.</p>
-        </div>
-        <div class="steps">
-          <article class="step"><div class="step-number">1</div><div><h3>Prepare the data</h3><p>Work with the clinical dataset and prepare inputs for analysis.</p></div></article>
-          <article class="step"><div class="step-number">2</div><div><h3>Build and evaluate models</h3><p>Examine model behavior and predictive performance through the notebook workflow.</p></div></article>
-          <article class="step"><div class="step-number">3</div><div><h3>Compare explanations</h3><p>Consider how different explanatory approaches reveal model reasoning.</p></div></article>
-          <article class="step"><div class="step-number">4</div><div><h3>Interpret in context</h3><p>Relate technical observations to the needs of clinical decision support.</p></div></article>
-        </div>
-      </div>
-    </section>
-    <section class="code-section" id="code">
-      <div class="wrap">
-        <div class="section-label">Explore the work</div>
-        <h2>Research code & notebooks</h2>
-        <p class="lead">Open a notebook on GitHub to inspect the code and analysis. Notebook names are preserved from the repository.</p>
-        <div class="notebooks">
-          <a class="notebook" href="https://github.com/SabbirGit/Thesis-Code/blob/main/Thesis%20notebook%20using%20MIMIC%20IV%20(13)%20(1).ipynb"><span><b>Thesis notebook using MIMIC IV</b><small>Primary notebook · Jupyter</small></span><span class="arrow" aria-hidden="true">↗</span></a>
-          <a class="notebook" href="https://github.com/SabbirGit/Thesis-Code/blob/main/Thesis%20notebook%20using%20MIMIC%20IV-Copy1%20(1).ipynb"><span><b>Thesis notebook using MIMIC IV — Copy 1</b><small>Additional notebook · Jupyter</small></span><span class="arrow" aria-hidden="true">↗</span></a>
-        </div>
-      </div>
-    </section>
-  </main>
-  <footer><div class="wrap footer-inner"><span>Comparative analysis of explainable models for Clinical Decision Support Systems</span><span>Research code · MIMIC-IV</span></div></footer>
+  </section>
+</main>
+<footer><div class="wrap"><span>Thesis research · Explainable clinical decision support</span><a href="#top">Back to top</a></div></footer>
 </body>
 </html>
