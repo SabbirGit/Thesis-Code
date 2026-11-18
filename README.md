@@ -4,7 +4,7 @@
 
 This project examines how predictive performance and model explanations can be evaluated together in clinical decision support. The analysis uses Python notebooks and MIMIC-IV clinical data.
 
-[Project website](https://thesiscdss.com/) · [Research notebooks](#research-notebooks) · [Data access](#data-access)
+[Website source](index.html) · [Research notebooks](#research-notebooks) · [Data access](#data-access)
 
 ## Research notebooks
 
@@ -28,4 +28,4 @@ Browse the code in GitHub or open the notebooks in Jupyter. To rerun the analysi
 
 ## Project website
 
-The repository also contains the thesis website in [`index.html`](index.html), published through GitHub Pages.
+The repository also contains the thesis website in [`index.html`](index.html), for GitHub Pages.
